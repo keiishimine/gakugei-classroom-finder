@@ -1,0 +1,88 @@
+name: Sync public syllabus (known URLs)
+
+on:
+  workflow_dispatch:
+  schedule:
+    # UTC 19:17 is 04:17 next day in Tokyo (daily; times can be delayed).
+    - cron: '17 19 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: syllabus-data-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    # Opt-in to avoid accidentally contacting a third-party university system.
+    # Set Repository Settings > Secrets and variables > Actions > Variables:
+    # SYLLABUS_AUTO_FETCH_ENABLED=true after confirming site access/reuse terms.
+    if: ${{ vars.SYLLABUS_AUTO_FETCH_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test parsers
+        run: python3 -m unittest discover -s tests -v
+      - name: Refresh known syllabus pages from official website
+        run: python3 scripts/sync_public_syllabus.py --permission-confirmed --delay 3.5
+      - name: Commit validated updates only
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add data/verified_2026_classes.csv data/verified_2026_rooms.csv data/sync_status.json
+          if git diff --cached --quiet; then
+            echo 'No changes to commit.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'data: refresh approved 2026 syllabus URLs'
+          git push
+
+  deploy:
+    # Commits made with GITHUB_TOKEN do not trigger the normal push-to-Pages workflow.
+    # Deploy explicitly after a successful scheduled sync.
+    needs: sync
+    if: ${{ needs.sync.result == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages-deploy
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout latest branch including the sync commit
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Prepare only the public site files
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p site/data
+          cp index.html style.css app.js .nojekyll site/
+          cp data/verified_2026_rooms.csv data/verified_2026_classes.csv site/data/
+          cp data/coverage.csv data/rooms.csv data/classes.csv data/sync_status.json site/data/
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - name: Deploy to Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

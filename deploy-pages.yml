@@ -1,0 +1,42 @@
+name: Deploy classroom finder
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Prepare only the public site files
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p site/data
+          cp index.html style.css app.js .nojekyll site/
+          cp data/verified_2026_rooms.csv data/verified_2026_classes.csv site/data/
+          cp data/coverage.csv data/rooms.csv data/classes.csv data/sync_status.json site/data/
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - name: Deploy to Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

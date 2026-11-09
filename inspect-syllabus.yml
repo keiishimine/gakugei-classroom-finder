@@ -1,0 +1,26 @@
+name: Inspect official syllabus search form (single page)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    if: ${{ vars.SYLLABUS_AUTO_FETCH_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Inspect one search page without submitting a search
+        run: python3 scripts/probe_syllabus_search.py --permission-confirmed --out diagnostics/search_form.json
+      - name: Store sanitized diagnostics
+        uses: actions/upload-artifact@v4
+        with:
+          name: syllabus-search-form-metadata
+          path: diagnostics/search_form.json
+          retention-days: 7
