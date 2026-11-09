@@ -1,0 +1,13 @@
+course_id,course_name,term,weekday,period_start,period_end,room_id,schedule_type,source_url,last_verified
+DEMO001,サンプル授業A,fall,mon,1,2,N101,weekly,,
+DEMO002,サンプル授業B,fall,mon,2,2,N201,weekly,,
+DEMO003,サンプル授業C,fall,mon,2,3,C201,weekly,,
+DEMO004,サンプル授業D,fall,tue,2,2,N303,weekly,,
+DEMO005,サンプル授業E,fall,wed,3,3,S203,weekly,,
+DEMO006,サンプル授業F,fall,thu,4,5,W110,weekly,,
+DEMO007,特殊日程のサンプル授業,fall,mon,2,2,S304,irregular,,
+DEMO008,サンプル授業H,fall,fri,1,1,C202,weekly,,
+DEMO009,春学期のサンプル授業A,spring,mon,2,2,N102,weekly,,
+DEMO010,春学期のサンプル授業B,spring,mon,2,3,S101,weekly,,
+DEMO011,春学期のサンプル授業C,spring,tue,3,4,W301,weekly,,
+DEMO012,春学期の特殊日程サンプル,spring,wed,2,2,C303,irregular,,

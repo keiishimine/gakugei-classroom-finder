@@ -1,0 +1,8 @@
+{
+  "status": "not_started",
+  "mode": "known_urls_only",
+  "updated_at": null,
+  "checked_known_urls": 0,
+  "coverage": "partial",
+  "note": "公式シラバスの自動同期はまだ有効化されていません。既知の11科目のみが静的データに登録されています。"
+}
