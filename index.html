@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#12263b" />
+  <meta name="description" content="東京学芸大学の公開シラバス掲載情報から、通常授業の予定を曜日・時限別に確認する非公式ツール。未調査の教室を空きとは判定しません。" />
+  <title>学芸大 空き教室ナビ | 非公式・検証中</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <div class="brand">
+        <div class="brand-symbol" aria-hidden="true">空</div>
+        <div><strong>学芸大 空き教室ナビ</strong><span>東京学芸大学向け・非公式</span></div>
+      </div>
+      <div class="header-pill" id="dataset-pill">2026 PARTIAL</div>
+    </div>
+  </header>
+  <main class="shell">
+    <section class="hero">
+      <p class="eyebrow">CLASSROOM FINDER · BETA</p>
+      <h1>この時間、<br /><span>どの教室に授業がある？</span></h1>
+      <p class="hero-description">学期・曜日・時限・建物から、登録済みの通常授業を探せます。網羅性が確認できるまでは、空いていると断定しません。</p>
+      <div class="notice" role="note">
+        <span class="notice-icon" aria-hidden="true">!</span>
+        <p><strong id="notice-title">2026年度シラバスを一部のみ反映しています。</strong><span id="notice-body">2026年度の公開シラバスで確認できた11科目・6教室のみを登録しています。未登録の時間は「要確認」です。授業変更・補講・施設予約は反映されません。</span></p>
+      </div>
+      <p class="helper" id="sync-stamp" aria-live="polite">自動同期：未実行</p>
+    </section>
+    <section class="search-panel" aria-labelledby="search-title">
+      <div class="section-head"><div><p class="eyebrow">SEARCH</p><h2 id="search-title">教室の授業予定を探す</h2></div><p class="muted">条件を変更すると自動更新</p></div>
+      <label class="field dataset-field"><span>データの種類</span><select id="dataset"><option value="official" selected>2026年度・公開シラバス確認済み（一部のみ）</option><option value="demo">操作を試す（架空のデモデータ）</option></select></label>
+      <div class="search-grid">
+        <label class="field"><span>学期</span><select id="term"><option value="fall">秋学期</option><option value="spring">春学期</option></select></label>
+        <label class="field"><span>曜日</span><select id="weekday"><option value="mon">月曜日</option><option value="tue">火曜日</option><option value="wed">水曜日</option><option value="thu">木曜日</option><option value="fri">金曜日</option></select></label>
+        <label class="field"><span>時限</span><select id="period"><option value="1">1限</option><option value="2" selected>2限</option><option value="3">3限</option><option value="4">4限</option><option value="5">5限</option><option value="6">6限</option></select></label>
+        <label class="field"><span>建物</span><select id="building"><option value="all">すべて</option><option value="N">N棟</option><option value="C">C棟</option><option value="S">S棟</option><option value="W">W棟</option></select></label>
+      </div>
+      <div class="filter-bottom"><label class="field text-field"><span>教室名で絞り込み</span><input id="keyword" type="search" placeholder="例: C401" autocomplete="off" /></label><label class="field compact-field"><span>表示</span><select id="status"><option value="all">すべて</option><option value="busy">授業予定あり</option><option value="free">空き候補</option><option value="unknown">要確認</option></select></label></div>
+    </section>
+    <section class="results-section" aria-labelledby="results-title">
+      <div class="section-head"><div><p class="eyebrow">RESULTS</p><h2 id="results-title">検索結果</h2></div><span id="conditions" class="chip">秋学期・月曜2限</span></div>
+      <div class="stats" aria-live="polite">
+        <div class="stat"><div class="stat-head"><span class="stat-dot busy"></span>授業予定あり</div><strong id="busy-count">—</strong><small>掲載授業を確認</small></div>
+        <div class="stat"><div class="stat-head"><span class="stat-dot unknown"></span>要確認</div><strong id="unknown-count">—</strong><small>網羅性未確認</small></div>
+        <div class="stat"><div class="stat-head"><span class="stat-dot free"></span>空き候補</div><strong id="free-count">—</strong><small>全件照合が確認済みの枠のみ</small></div>
+      </div>
+      <div class="results-top"><p id="results-summary" class="muted" aria-live="polite">読み込み中…</p><p id="data-message" class="subtle"></p></div>
+      <div id="room-list" class="room-grid" aria-live="polite"></div>
+    </section>
+    <section class="data-panel" aria-labelledby="data-title">
+      <div class="section-head"><div><p class="eyebrow">CUSTOM DATA</p><h2 id="data-title">CSVを読み込む</h2></div></div>
+      <p>公式データを許可された方法で用意したら、教室一覧・授業一覧を読み込めます。データはブラウザ内で処理し、外部サーバーには送信しません。未確認の枠は「要確認」です。</p>
+      <div class="upload-grid">
+        <label class="upload"><strong>① 教室一覧 CSV</strong><span>room_id,building など</span><input id="rooms-file" type="file" accept=".csv,text/csv"/><small id="rooms-file-name">未選択</small></label>
+        <label class="upload"><strong>② 授業一覧 CSV</strong><span>course_name,term,weekday,period_start…</span><input id="classes-file" type="file" accept=".csv,text/csv"/><small id="classes-file-name">未選択</small></label>
+        <label class="upload"><strong>③ 全件確認済み時間帯 CSV（任意）</strong><span>完全なデータが確認できた場合に限る</span><input id="coverage-file" type="file" accept=".csv,text/csv"/><small id="coverage-file-name">未選択：すべて要確認扱い</small></label>
+      </div>
+      <div class="data-actions"><button type="button" id="apply-csv" disabled>CSVを反映</button><button type="button" id="reset-default" class="secondary">2026年度の部分データに戻す</button><span id="import-message" role="status"></span></div>
+      <p class="helper">CSVの列名と「空き候補」が出る条件は <a href="README.md" target="_blank" rel="noopener">README</a> を参照してください。読み込んだ内容はページ再読込で消えます。</p>
+    </section>
+  </main>
+  <footer class="site-footer shell"><p>東京学芸大学の公式サイトではありません。授業・講義室変更、補講、施設予約、現地での利用状況を必ず確認してください。掲載されていない教室は検索対象外です。</p><a href="https://tgusyl.u-gakugei.ac.jp/ext_syllabus/syllabusSearchDirect.do?nologin=on" target="_blank" rel="noopener noreferrer">大学公式シラバス ↗</a></footer>
+</body>
+</html>

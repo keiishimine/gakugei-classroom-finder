@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+saved_syllabus/
+.DS_Store
